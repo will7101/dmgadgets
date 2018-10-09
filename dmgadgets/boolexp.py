@@ -126,6 +126,8 @@ class AST:
         self.root = stack.pop()
 
     def parse(self, expr: str):
+        """Parse an boolean expression and build the tree.
+        """
         rpn = self.__build_rpn(expr)
         self.__build_ast(rpn)
 
