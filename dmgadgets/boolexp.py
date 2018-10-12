@@ -142,6 +142,7 @@ class AST:
     def traversal(self, order=0):
         """
         Return the depth-first traversal on the subtree in:
+
         0 = pre-order
         1 = in-order
         2 = post-order
@@ -154,8 +155,10 @@ class AST:
     def truth_table(self):
         """
         Returns the truth table of the expression.
+
         table[$cond][$var_name] indicates the value of $var_name in condition $cond
         (in binary, 0 for False and 1 for True).
+
         table[$cond]['result'] indicates the value of the expression.
         """
         var_names = self.var_names
@@ -175,6 +178,7 @@ class AST:
     def dnf(self, table):
         """
         Return the Principle Disjunctive Normal Form of the expression indicated by the truth table.
+
         Return a tuple of a literal expression and a list of minterms' indices
         """
         result = []
@@ -203,6 +207,7 @@ class AST:
     def cnf(self, table):
         """
         Return the Principle Conjunctive Normal Form of the expression indicated by the truth table.
+
         Return a tuple of a literal expression and a list of maxterms' indices
         """
         result = []
@@ -242,12 +247,14 @@ class ASTNode:
     def eval(self, var):
         """
         Evaluate the value of the subtree.
+
         var[$var_name] -> the value of $var_name
         """
 
     def traversal(self, result: list, order=0):
         """
         Return the depth-first traversal on the subtree in:
+
         0 = pre-order
         1 = in-order
         2 = post-order
