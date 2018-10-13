@@ -20,11 +20,11 @@ $(function () {
                                 'class': 'list-group-item',
                             });
 
-                            let $title = $('<h4>',{
+                            let $title = $('<h4>', {
                                 'class': 'mb-3',
                             }).html(item['title']);
 
-                            let $content = $('<p>',{
+                            let $content = $('<p>', {
                                 'class': 'text-monospace',
                             }).html(item['content']);
 
@@ -37,31 +37,37 @@ $(function () {
                         let $truth_table = $('#truthTable');
                         $truth_table.empty();
 
-                        // let thead = document.createElement('thead');
-                        // let tr = thead.appendChild(document.createElement('tr'));
-                        //
-                        // $.each(data['var_names'], function (i, item) {
-                        //     let th = document.createElement('th');
-                        //     th.setAttribute('scope', 'col');
-                        //     th.innerText = item;
-                        //     tr.appendChild(th);
-                        // });
-                        //
-                        // let th = document.createElement('th');
-                        // th.setAttribute('scope', 'col');
-                        // th.innerText = $('#expr').val();
-                        // tr.appendChild(th);
-                        //
-                        // let tbo
-                        //
-                        // $.each(data['truth_table'], function (i, item) {
-                        //     console.log(item);
-                        //
-                        // });
+                        let $thead = $('<thead>').appendTo($truth_table);
+                        let $tr = $('<tr>').appendTo($thead);
 
-                        let $thead = $('<thead>');
-                        let $tr = $('<tr>');
+                        $.each(data['var_names'], function (i, var_name) {
+                            $('<th>', {
+                                scope: 'col',
+                                text: var_name,
+                            }).appendTo($tr);
+                        });
 
+                        $('<th>', {
+                            scope: 'col',
+                            text: $('#expr').val(),
+                        }).appendTo($tr);
+
+                        let $tbody = $('<tbody>').appendTo($truth_table);
+
+                        $.each(data['truth_table'], function (i, row) {
+                            let $tr = $('<tr>').appendTo($tbody);
+                            $.each(data['var_names'], function (i, var_name) {
+                                let value = row[var_name];
+                                $('<td>', {
+                                    class : value === true ? "color-true" : "color-false",
+                                    text: Number(value),
+                                }).appendTo($tr);
+                            });
+
+                            $('<td>', {
+                                text: Number(row['result']),
+                            }).appendTo($tr);
+                        });
 
                     } else {
                         alert(data['msg']);
@@ -70,4 +76,21 @@ $(function () {
             });
         }
     );
+
+    $('#exprForm input[type=radio]').change(function () {
+        console.log(this.value);
+        if(this.value === 'expr') {
+            $('#expr').prop('disabled', false);
+            $('#fieldTruth').prop('disabled', true);
+            $('#varNum').slider('disable')
+        }else if(this.value==='truth'){
+            $('#expr').prop('disabled', true);
+            $('#fieldTruth').prop('disabled', false);
+            $('#varNum').slider('enable')
+        }
+    });
+
+    $('#varNum').on('slide', function (event) {
+        $('#varNumLabel').text(event.value);
+    })
 });
