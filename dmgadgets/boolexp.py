@@ -89,7 +89,7 @@ class AST:
                     rpn.append(stack.pop())
                 stack.pop()
             elif token in op_list:
-                while len(stack) != 0 and stack[-1] != '(' and op_privilege[stack[-1]] > op_privilege[token]:
+                while len(stack) != 0 and stack[-1] != '(' and op_privilege[stack[-1]] >= op_privilege[token]:
                     rpn.append(stack.pop())
                 stack.append(token)
             else:
@@ -123,6 +123,8 @@ class AST:
         if len(stack) != 1:
             raise BoolExpError('syntax error')
         self.var_names = sorted(set(self.var_names))  # sort and unique-fy
+        if len(self.var_names) > 10:
+            raise BoolExpError('too many variables')
         self.root = stack.pop()
 
     def parse(self, expr: str):
@@ -163,8 +165,6 @@ class AST:
         """
         var_names = self.var_names
         num_vars = len(var_names)
-        if num_vars > 10:
-            raise BoolExpError('too many variables')
 
         table = []
         for var_values in itertools.product([False, True], repeat=num_vars):
@@ -186,7 +186,7 @@ class AST:
         for row in table:
             if row['result']:
                 index = 0
-                term = ['(']
+                term = []
                 for var in self.var_names:
                     index = index * 2 + int(row[var])
                     if not row[var]:
@@ -195,8 +195,8 @@ class AST:
                         term.append(var)
                     term.append(self.op_table_r[OP_AND])
                 term.pop()
-                term.append(')')
-                result += term
+                term = '(' + ' '.join(term) + ')'
+                result.append(term)
                 result.append(self.op_table_r[OP_OR])
 
                 indices.append(index)
@@ -215,7 +215,7 @@ class AST:
         for row in reversed(table):
             if not row['result']:
                 index = 0
-                term = ['(']
+                term = []
                 for var in self.var_names:
                     index = index * 2 + int(not row[var])
                     if row[var]:
@@ -224,8 +224,8 @@ class AST:
                         term.append(var)
                     term.append(self.op_table_r[OP_OR])
                 term.pop()
-                term.append(')')
-                result += term
+                term = '(' + ' '.join(term) + ')'
+                result.append(term)
                 result.append(self.op_table_r[OP_AND])
 
                 indices.append(index)
@@ -295,20 +295,6 @@ def main():
     """Some tests.
     """
     tree = AST()
-    # n1 = OperatorNode(OP_AND)
-    # n2 = OperandNode('P')
-    # n3 = OperandNode('Q')
-    # tree.root = n1
-    # n1.left = n2
-    # n1.right = n3
-    # tree.var = {'P': True, 'Q': False}
-    # print(tree.eval())
-    # print(tree.traversal(0))
-    # print(tree.traversal(1))
-    # print(tree.traversal(2))
-
-    # rpn = tree.build_rpn('A | B & (C |D)')
-    # print(' '.join(map(str, rpn)))
     tree.parse('A~B')
     # print(tree.eval())
     print(' '.join(tree.traversal(0)))
