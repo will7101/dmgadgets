@@ -1,96 +1,154 @@
 $(function () {
     $('#exprForm').submit(function (event) {
+            console.log(event.data);
             event.preventDefault();
-            $.ajax({
-                type: 'GET',
-                url: 'api/parse',
-                data: {
-                    expr: $('#expr').val(),
-                },
-                dataType: 'json',
-                success: function (data) {
-                    console.log(data);
-                    if (data['status'] === 'ok') {
-                        let $result_list = $('#resultList');
-                        $result_list.empty();
+            if ($('#radioExpr').is(':checked')) {
+                $.ajax({
+                    type: 'GET',
+                    url: 'api/parse',
+                    data: {
+                        expr: $('#expr').val()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data);
+                        if (data['status'] === 'ok') {
+                            let $result_list = $('#resultList');
+                            $result_list.empty();
 
-                        $.each(data['result_list'], function (i, item) {
-                            console.log(item);
-                            let $li = $('<li>', {
-                                'class': 'list-group-item',
+                            $.each(data['result_list'], function (i, item) {
+                                let $title = $('<h4>', {'class': 'mb-3'}).html(item['title']);
+                                let $content = $('<p>', {'class': 'text-monospace'}).html(item['content']);
+                                $('<li>', {
+                                    'class': 'list-group-item'
+                                }).append($title).append($content).appendTo($result_list);
                             });
 
-                            let $title = $('<h4>', {
-                                'class': 'mb-3',
-                            }).html(item['title']);
+                            let $truthTable = $('#truthTable');
+                            $truthTable.empty();
 
-                            let $content = $('<p>', {
-                                'class': 'text-monospace',
-                            }).html(item['content']);
+                            let $thead = $('<thead>').appendTo($truthTable);
+                            let $tr = $('<tr>').appendTo($thead);
 
-                            $li.append($title);
-                            $li.append($content);
-
-                            $result_list.append($li);
-                        });
-
-                        let $truth_table = $('#truthTable');
-                        $truth_table.empty();
-
-                        let $thead = $('<thead>').appendTo($truth_table);
-                        let $tr = $('<tr>').appendTo($thead);
-
-                        $.each(data['var_names'], function (i, var_name) {
-                            $('<th>', {
-                                scope: 'col',
-                                text: var_name,
-                            }).appendTo($tr);
-                        });
-
-                        $('<th>', {
-                            scope: 'col',
-                            text: $('#expr').val(),
-                        }).appendTo($tr);
-
-                        let $tbody = $('<tbody>').appendTo($truth_table);
-
-                        $.each(data['truth_table'], function (i, row) {
-                            let $tr = $('<tr>').appendTo($tbody);
-                            $.each(data['var_names'], function (i, var_name) {
-                                let value = row[var_name];
-                                $('<td>', {
-                                    class : value === true ? "color-true" : "color-false",
-                                    text: Number(value),
+                            $.each(data['var_names'], function (i, varName) {
+                                $('<th>', {
+                                    scope: 'col',
+                                    text: varName
                                 }).appendTo($tr);
                             });
 
-                            $('<td>', {
-                                text: Number(row['result']),
+                            $('<th>', {
+                                scope: 'col',
+                                text: $('#expr').val()
                             }).appendTo($tr);
-                        });
 
-                    } else {
-                        alert(data['msg']);
+                            let $tbody = $('<tbody>').appendTo($truthTable);
+
+                            $.each(data['truth_table'], function (i, row) {
+                                let $tr = $('<tr>').appendTo($tbody);
+                                $.each(data['var_names'], function (i, varName) {
+                                    let value = row[varName];
+                                    $('<td>', {
+                                        class: value === true ? 'color-true' : 'color-false',
+                                        text: Number(value)
+                                    }).appendTo($tr);
+                                });
+
+                                $('<td>', {text: Number(row['result'])}).appendTo($tr);
+                            });
+
+                        } else {
+                            alert(data['msg']);
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                let args = {var_num: $('#varNumLabel').text()};
+                $('#truthTable input').each(function () {
+                    args[$(this).attr('name')] = Number($(this).val());
+                });
+                console.log(args);
+                $.ajax({
+                    type: 'GET',
+                    url: 'api/from-truth-table',
+                    data: args,
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data);
+                        if (data['status'] === 'ok') {
+                            let $result_list = $('#resultList');
+                            $result_list.empty();
+
+                            $.each(data['result_list'], function (i, item) {
+                                let $title = $('<h4>', {'class': 'mb-3'}).html(item['title']);
+                                let $content = $('<p>', {'class': 'text-monospace'}).html(item['content']);
+                                $('<li>', {
+                                    'class': 'list-group-item'
+                                }).append($title).append($content).appendTo($result_list);
+                            });
+                        } else {
+                            alert(data['msg']);
+                        }
+                    }
+                });
+            }
         }
     );
 
-    $('#exprForm input[type=radio]').change(function () {
-        console.log(this.value);
-        if(this.value === 'expr') {
-            $('#expr').prop('disabled', false);
-            $('#fieldTruth').prop('disabled', true);
-            $('#varNum').slider('disable')
-        }else if(this.value==='truth'){
-            $('#expr').prop('disabled', true);
-            $('#fieldTruth').prop('disabled', false);
-            $('#varNum').slider('enable')
+    function makeTable(varNum) {
+        let $truthTable = $('#truthTable');
+        $truthTable.empty();
+        let $thead = $('<thead>').appendTo($truthTable);
+        let $tr = $('<tr>').appendTo($thead);
+        $.each('ABCDEF'.substr(0, varNum).split(''), function (i, varName) {
+            $('<th>', {
+                scope: 'col',
+                text: varName
+            }).appendTo($tr);
+        });
+        $('<th>', {
+            scope: 'col',
+            text: '表达式的值'
+        }).appendTo($tr);
+
+        let $tbody = $('<tbody>').appendTo($truthTable);
+        for (let bin = 0; bin < (1 << varNum); ++bin) {
+            let $tr = $('<tr>').appendTo($tbody);
+            for (let i = varNum - 1; i >= 0; --i) {
+                let value = (bin >> i) & 1; // bit from high to low
+                $('<td>', {
+                    class: value === 1 ? 'color-true' : 'color-false',
+                    text: value
+                }).appendTo($tr);
+            }
+            $('<td>').append($('<input>', {
+                type: 'number',
+                min: '0',
+                max: '1',
+                step: '1',
+                name: 'val' + bin,
+            })).appendTo($tr);
         }
-    });
+    }
 
     $('#varNum').on('slide', function (event) {
         $('#varNumLabel').text(event.value);
-    })
+        makeTable(event.value);
+    });
+
+    $('#exprForm input[type=radio]').change(function () {
+        console.log(this.value);
+        if (this.value === 'expr') {
+            $('#expr').prop('disabled', false);
+            $('#fieldTruth').prop('disabled', true);
+            $('#varNum').slider('disable');
+        } else if (this.value === 'truth') {
+            $('#expr').prop('disabled', true);
+            $('#fieldTruth').prop('disabled', false);
+            $('#varNum').slider('enable');
+            makeTable(Number($('#varNumLabel').text()));
+        }
+    });
+
+    $('#radioExpr').prop('checked', true).change();
 });

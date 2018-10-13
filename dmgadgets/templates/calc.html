@@ -26,6 +26,23 @@
     #varNumSlider .slider-selection {
       background: #009aff;
     }
+
+    table td {
+      position: relative;
+    }
+
+    table td input {
+      position: absolute;
+      display: block;
+      top: 0;
+      left: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      border: none;
+      padding: 10px;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -60,13 +77,13 @@
         <fieldset id="fieldTruth">
           <div class="row">
             <div class="col-4">
-              <label for="varNum">变量个数：<span id="varNumLabel">5</span></label>
+              <label for="varNum">变量个数：<span id="varNumLabel" class="text-primary">2</span></label>
             </div>
             <div class="col-8">
               <div class="form-group mb-3">
                 <input type="text" name="varNum" id="varNum" data-slider-id='varNumSlider'
                        data-provide="slider"
-                       data-slider-min="1" data-slider-max="10"
+                       data-slider-min="1" data-slider-max="6"
                        data-slider-step="1" data-slider-value="2">
               </div>
             </div>
@@ -74,35 +91,35 @@
           {#<label for="truth" class="control-label">真值表</label>#}
           <div class="table-responsive">
             <table class="table table-bordered text-monospace" id="truthTable">
-              <thead>
-              <tr>
-                <th scope="col">P</th>
-                <th scope="col">Q</th>
-                <th scope="col">P&Q</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr>
-                <td>0</td>
-                <td>0</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>0</td>
-                <td>1</td>
-                <td>0</td>
-              </tr>
-              <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>0</td>
-              </tr>
-              <tr>
-                <td>1</td>
-                <td>1</td>
-                <td>1</td>
-              </tr>
-              </tbody>
+{#              <thead>#}
+{#              <tr>#}
+{#                <th scope="col">P</th>#}
+{#                <th scope="col">Q</th>#}
+{#                <th scope="col">P~Q</th>#}
+{#              </tr>#}
+{#              </thead>#}
+{#              <tbody>#}
+{#              <tr>#}
+{#                <td>0</td>#}
+{#                <td>0</td>#}
+{#                <td><input type="text" value="1"></td>#}
+{#              </tr>#}
+{#              <tr>#}
+{#                <td>0</td>#}
+{#                <td>1</td>#}
+{#                <td><input type="text" value="0"></td>#}
+{#              </tr>#}
+{#              <tr>#}
+{#                <td>1</td>#}
+{#                <td>0</td>#}
+{#                <td><input type="text" value="0"></td>#}
+{#              </tr>#}
+{#              <tr>#}
+{#                <td>1</td>#}
+{#                <td>1</td>#}
+{#                <td><input type="text" value="1"></td>#}
+{#              </tr>#}
+{#              </tbody>#}
             </table>
           </div>
         </fieldset>
@@ -112,28 +129,23 @@
     <div class="col-md-6">
       <h3 class="mb-3">计算结果</h3>
       <ul class="list-group" id="resultList">
-        <li class="list-group-item">
-          <h4 class="mb-3>">title</h4>
-          <p>content</p>
-        </li>
-        <li class="list-group-item">
-          <h4 class="mb-3>">title</h4>
-          <p>content</p>
-        </li>
-        <li class="list-group-item">
-          <h4 class="mb-3>">title</h4>
-          <p class="text-monospace">long long long long long long long long long long long long long long long long long
-            longlong long content</p>
-        </li>
+{#        <li class="list-group-item">#}
+{#          <h4 class="mb-3>">title</h4>#}
+{#          <p>content</p>#}
+{#        </li>#}
+{#        <li class="list-group-item">#}
+{#          <h4 class="mb-3>">title</h4>#}
+{#          <p>content</p>#}
+{#        </li>#}
+{#        <li class="list-group-item">#}
+{#          <h4 class="mb-3>">title</h4>#}
+{#          <p class="text-monospace">long long long long long long long long long long long long long long long long long#}
+{#            longlong long content</p>#}
+{#        </li>#}
       </ul>
     </div>
   </div>
 </div>
-{#<form method="post">#}
-{#  Enter the expression:<br>#}
-{#  <input type="text" name="expr"><br>#}
-{#  <input type="submit" value="Calc!">#}
-{#</form>#}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"
