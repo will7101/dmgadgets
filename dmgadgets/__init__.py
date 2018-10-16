@@ -25,7 +25,7 @@ def calc():
 @app.route('/api/parse', methods=['GET'])
 def parse():
     expr = request.args['expr']
-    if len(expr) > 1000:
+    if len(expr) > 500:
         return 400
     tree = AST()
     try:
@@ -44,6 +44,8 @@ def parse():
     dnf = dnf[0] + '<br>' + str(dnf[1])
     cnf = tree.cnf(truth)
     cnf = cnf[0] + '<br>' + str(cnf[1])
+    image = tree.dump_graph()
+    print(image)
 
     return json.dumps({
         'status': 'ok',
@@ -66,7 +68,8 @@ def parse():
             },
         ],
         'var_names': var_names,
-        'truth_table': truth
+        'truth_table': truth,
+        'image': image
     })
 
 

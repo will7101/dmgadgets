@@ -1,8 +1,14 @@
 import collections
 import itertools
+from typing import List
+
+from graphviz import Graph
+from flask import g
+from base64 import b64encode
 
 BoolOperator = collections.namedtuple('BoolOperator', ['func', 'privilege'])
 
+#################################
 # Constants
 OP_NOT = 0
 OP_AND = 1
@@ -22,13 +28,8 @@ op_func = [
 
 op_privilege = [5, 4, 3, 2, 1]
 
-default_op_table = {
-    '!': OP_NOT,
-    '&': OP_AND,
-    '|': OP_OR,
-    '^': OP_IMP,
-    '~': OP_EQ,
-}
+
+##################################
 
 
 class BoolExpError(Exception):
@@ -45,12 +46,19 @@ class AST:
         self.var_names = []
         self.var_table = {}
 
-        self.op_table = op_table
-        if not self.op_table:
-            self.op_table = default_op_table
-        self.op_table_r = {}
-        for symbol, op in self.op_table.items():
-            self.op_table_r[op] = symbol
+        if op_table is None:
+            op_table = {
+                '!': OP_NOT,
+                '&': OP_AND,
+                '|': OP_OR,
+                '^': OP_IMP,
+                '~': OP_EQ,
+            }
+
+        g.op_table = dict(op_table)
+        g.op_table_r = {}
+        for symbol, op in g.op_table.items():
+            g.op_table_r[op] = symbol
 
     def __build_rpn(self, expr: str):
         """Build the Reverse Polish Notation from the expression
@@ -71,8 +79,8 @@ class AST:
 
             token = expr[pos]
             pos += 1
-            if token in self.op_table.keys():
-                token = self.op_table[token]
+            if token in g.op_table.keys():
+                token = g.op_table[token]
 
             return token
 
@@ -89,13 +97,18 @@ class AST:
                     rpn.append(stack.pop())
                 stack.pop()
             elif token in op_list:
-                while len(stack) != 0 and stack[-1] != '(' and op_privilege[stack[-1]] >= op_privilege[token]:
-                    rpn.append(stack.pop())
+                if token == OP_NOT:
+                    while len(stack) != 0 and stack[-1] != '(' and op_privilege[stack[-1]] > op_privilege[token]:
+                        rpn.append(stack.pop())
+                else:
+                    while len(stack) != 0 and stack[-1] != '(' and op_privilege[stack[-1]] >= op_privilege[token]:
+                        rpn.append(stack.pop())
                 stack.append(token)
             else:
                 rpn.append(token)
 
         rpn.extend(reversed(stack))
+        print(rpn)
         return rpn
 
     def __build_ast(self, rpn: list):
@@ -151,7 +164,6 @@ class AST:
         """
         result = []
         self.root.traversal(result, order)
-        result = [self.op_table_r[t] if t in op_list else t for t in result]
         return result
 
     def truth_table(self):
@@ -190,14 +202,14 @@ class AST:
                 for var in self.var_names:
                     index = index * 2 + int(row[var])
                     if not row[var]:
-                        term.append(self.op_table_r[OP_NOT] + var)
+                        term.append(g.op_table_r[OP_NOT] + var)
                     else:
                         term.append(var)
-                    term.append(self.op_table_r[OP_AND])
+                    term.append(g.op_table_r[OP_AND])
                 term.pop()
                 term = '(' + ' '.join(term) + ')'
                 result.append(term)
-                result.append(self.op_table_r[OP_OR])
+                result.append(g.op_table_r[OP_OR])
 
                 indices.append(index)
         result.pop()
@@ -219,20 +231,30 @@ class AST:
                 for var in self.var_names:
                     index = index * 2 + int(not row[var])
                     if row[var]:
-                        term.append(self.op_table_r[OP_NOT] + var)
+                        term.append(g.op_table_r[OP_NOT] + var)
                     else:
                         term.append(var)
-                    term.append(self.op_table_r[OP_OR])
+                    term.append(g.op_table_r[OP_OR])
                 term.pop()
                 term = '(' + ' '.join(term) + ')'
                 result.append(term)
-                result.append(self.op_table_r[OP_AND])
+                result.append(g.op_table_r[OP_AND])
 
                 indices.append(index)
         if len(result) > 0:
             result.pop()
         result = ' '.join(result)
         return result, indices
+
+    def dump_graph(self):
+        """
+        Use graphviz to dump into an image.
+
+        Return the base64-encoded string of a png file.
+        """
+        dot = Graph(format='png')
+        self.root.dump_graph(dot)
+        return b64encode(dot.pipe()).decode('utf-8')
 
 
 class ASTNode:
@@ -243,6 +265,9 @@ class ASTNode:
         self.left = None  # left child
         self.right = None  # right child
         self.token = token
+
+    def __str__(self):
+        return str(self.token)
 
     def eval(self, var):
         """
@@ -260,18 +285,31 @@ class ASTNode:
         2 = post-order
         """
         if order == 0:
-            result.append(self.token)
+            result.append(str(self))
         if self.left:
             self.left.traversal(result, order)
         if order == 1:
-            result.append(self.token)
+            result.append(str(self))
         if self.right:
             self.right.traversal(result, order)
         if order == 2:
-            result.append(self.token)
+            result.append(str(self))
+
+    def dump_graph(self, dot: Graph, fid=''):
+        """Dump the subtree.
+        """
+        sid = str(id(self))
+        dot.node(sid, str(self))
+        if fid:
+            dot.edge(fid, sid)
+        self.left.dump_graph(dot, sid)
+        self.right.dump_graph(dot, sid)
 
 
 class OperatorNode(ASTNode):
+    def __str__(self):
+        return g.op_table_r[self.token]
+
     def eval(self, var):
         func = op_func[self.token]
         return func(self.left.eval(var), self.right.eval(var))
@@ -282,6 +320,14 @@ class OperandNode(ASTNode):
         value = var[self.token]
         return value
 
+    def dump_graph(self, dot: Graph, fid=''):
+        """Dump the subtree.
+        """
+        sid = str(id(self))
+        dot.node(sid, str(self), shape='box')
+        if fid:
+            dot.edge(fid, sid)
+
 
 class DummyNode(ASTNode):
     def eval(self, var):
@@ -289,6 +335,14 @@ class DummyNode(ASTNode):
 
     def traversal(self, *args, **kwargs):
         return
+
+    def dump_graph(self, dot: Graph, fid=''):
+        """Dump the subtree.
+        """
+        sid = str(id(self))
+        dot.node(sid, style='invis')
+        if fid:
+            dot.edge(fid, sid, style='invis')
 
 
 def main():

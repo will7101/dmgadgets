@@ -57,6 +57,14 @@ $(function () {
                                 $('<td>', {text: Number(row['result'])}).appendTo($tr);
                             });
 
+                            // console.log(data['image']);
+                            $('#graph').empty().append(
+                              $('<img>', {
+                                  src: 'data:image/png;base64,' + data['image'],
+                                  class: 'img-fluid'
+                              })
+                            );
+
                         } else {
                             alert(data['msg']);
                         }
