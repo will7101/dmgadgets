@@ -149,11 +149,11 @@ $(function () {
         if (this.value === 'expr') {
             $('#expr').prop('disabled', false);
             $('#fieldTruth').prop('disabled', true);
-            $('#varNum').slider('disable');
+            $('#varNumRow').hide();
         } else if (this.value === 'truth') {
             $('#expr').prop('disabled', true);
             $('#fieldTruth').prop('disabled', false);
-            $('#varNum').slider('enable');
+            $('#varNumRow').show();
             makeTable(Number($('#varNumLabel').text()));
         }
     });

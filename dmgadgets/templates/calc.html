@@ -43,6 +43,10 @@
       padding: 10px;
       box-sizing: border-box;
     }
+
+    {#.op-symbol {#}
+    {#  width: 18px;#}
+    {#}#}
   </style>
 </head>
 <body class="bg-light">
@@ -76,7 +80,7 @@
           </div>
         </div>
         <fieldset id="fieldTruth">
-          <div class="row">
+          <div id="varNumRow" class="row">
             <div class="col-4">
               <label for="varNum">变量个数：<span id="varNumLabel" class="text-primary">2</span></label>
             </div>
@@ -100,8 +104,29 @@
       </form>
     </div>
     <div class="col-md-4">
+      <h3 class="mb-3">自定义符号</h3>
+      <div class="form-group">
+        <label for="op0">取反（非）：</label>
+        <input type="text" maxlength="1" class="form-control op-symbol" name="op0" id="op0" value="!">
+      </div>
+      <div class="form-group">
+        <label for="op1">合取（与）：</label>
+        <input type="text" maxlength="1" class="form-control op-symbol" name="op1" id="op1" value="&">
+      </div>
+      <div class="form-group">
+        <label for="op2">析取（或）：</label>
+        <input type="text" maxlength="1" class="form-control op-symbol" name="op2" id="op2" value="|">
+      </div>
+      <div class="form-group">
+        <label for="op3">蕴含：</label>
+        <input type="text" maxlength="1" class="form-control op-symbol" name="op3" id="op3" value="^">
+      </div>
+      <div class="form-group">
+        <label for="op4">等价：</label>
+        <input type="text" maxlength="1" class="form-control op-symbol" name="op4" id="op4" value="~">
+      </div>
+
       <h3 class="mb-3">表达式树</h3>
-{#      <img src='' id="graph" class="img-fluid" alt="表达式树">#}
       <div id="graph">
 
       </div>

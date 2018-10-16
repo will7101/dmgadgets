@@ -339,10 +339,11 @@ class DummyNode(ASTNode):
     def dump_graph(self, dot: Graph, fid=''):
         """Dump the subtree.
         """
-        sid = str(id(self))
-        dot.node(sid, style='invis')
-        if fid:
-            dot.edge(fid, sid, style='invis')
+        # sid = str(id(self))
+        # dot.node(sid, style='invis')
+        # if fid:
+        #     dot.edge(fid, sid, style='invis')
+        pass
 
 
 def main():

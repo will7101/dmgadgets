@@ -41,9 +41,9 @@ def parse():
     pn = ' '.join(tree.traversal(0))
     rpn = ' '.join(tree.traversal(2))
     dnf = tree.dnf(truth)
-    dnf = dnf[0] + '<br>' + str(dnf[1])
+    dnf = (dnf[0] if dnf[0] else '空') + '<br>' + str(dnf[1])
     cnf = tree.cnf(truth)
-    cnf = cnf[0] + '<br>' + str(cnf[1])
+    cnf = (cnf[0] if cnf[0] else '空') + '<br>' + str(cnf[1])
     image = tree.dump_graph()
     print(image)
 
@@ -91,9 +91,9 @@ def from_truth_table():
     tree = AST()
     tree.var_names = list("ABCDEF"[:var_num])
     dnf = tree.dnf(table)
-    dnf = dnf[0] + '<br>' + str(dnf[1])
+    dnf = (dnf[0] if dnf[0] else '空') + '<br>' + str(dnf[1])
     cnf = tree.cnf(table)
-    cnf = cnf[0] + '<br>' + str(cnf[1])
+    cnf = (cnf[0] if cnf[0] else '空') + '<br>' + str(cnf[1])
 
     return json.dumps({
         'status': 'ok',
