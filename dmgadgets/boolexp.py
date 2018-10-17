@@ -6,10 +6,11 @@ from graphviz import Graph
 from flask import g
 from base64 import b64encode
 
-BoolOperator = collections.namedtuple('BoolOperator', ['func', 'privilege'])
+# BoolOperator = collections.namedtuple('BoolOperator', ['func', 'privilege'])
 
 #################################
 # Constants
+
 OP_NOT = 0
 OP_AND = 1
 OP_OR = 2
@@ -60,7 +61,8 @@ class AST:
         for symbol, op in g.op_table.items():
             g.op_table_r[op] = symbol
 
-    def __build_rpn(self, expr: str):
+    @staticmethod
+    def __build_rpn(expr: str):
         """Build the Reverse Polish Notation from the expression
         """
         pos = 0
@@ -111,7 +113,7 @@ class AST:
                 rpn.append(token)
 
         rpn.extend(reversed(stack))
-        print(rpn)
+        # print(rpn)
         return rpn
 
     def __build_ast(self, rpn: list):
@@ -351,18 +353,7 @@ class DummyNode(ASTNode):
 
 
 def main():
-    """Some tests.
-    """
-    tree = AST()
-    tree.parse('A~B')
-    # print(tree.eval())
-    print(' '.join(tree.traversal(0)))
-    print(' '.join(tree.traversal(1)))
-    print(' '.join(tree.traversal(2)))
-    table = tree.truth_table()
-    print(table)
-    print(tree.dnf(table))
-    print(tree.cnf(table))
+    pass
 
 
 if __name__ == '__main__':

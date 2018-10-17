@@ -50,7 +50,7 @@ def parse():
     cnf = tree.cnf(truth)
     cnf = (cnf[0] if cnf[0] else '空') + '<br>' + str(cnf[1])
     image = tree.dump_graph()
-    print(image)
+    # print(image)
 
     return json.dumps({
         'status': 'ok',
