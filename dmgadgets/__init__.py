@@ -27,7 +27,12 @@ def parse():
     expr = request.args['expr']
     if len(expr) > 500:
         return 400
-    tree = AST()
+
+    op_table = {}
+    for i in range(5):
+        op_table[request.args['op%d' % i]] = i
+
+    tree = AST(op_table)
     try:
         tree.parse(expr)
     except BoolExpError as err:

@@ -93,9 +93,12 @@ class AST:
             if token == '(':
                 stack.append(token)
             elif token == ')':
-                while stack[-1] != '(':
-                    rpn.append(stack.pop())
-                stack.pop()
+                try:
+                    while stack[-1] != '(':
+                        rpn.append(stack.pop())
+                    stack.pop()
+                except IndexError:
+                    raise BoolExpError('syntax error')
             elif token in op_list:
                 if token == OP_NOT:
                     while len(stack) != 0 and stack[-1] != '(' and op_privilege[stack[-1]] > op_privilege[token]:
@@ -212,7 +215,8 @@ class AST:
                 result.append(g.op_table_r[OP_OR])
 
                 indices.append(index)
-        result.pop()
+        if len(result) > 0:
+            result.pop()
         result = ' '.join(result)
         return result, indices
 
@@ -339,10 +343,10 @@ class DummyNode(ASTNode):
     def dump_graph(self, dot: Graph, fid=''):
         """Dump the subtree.
         """
-        # sid = str(id(self))
-        # dot.node(sid, style='invis')
-        # if fid:
-        #     dot.edge(fid, sid, style='invis')
+        sid = str(id(self))
+        dot.node(sid, 'NULL', style='invis')
+        if fid:
+            dot.edge(fid, sid, style='invis')
         pass
 
 

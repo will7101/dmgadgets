@@ -44,9 +44,24 @@
       box-sizing: border-box;
     }
 
-    {#.op-symbol {#}
-    {#  width: 18px;#}
-    {#}#}
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: rgba(255, 255, 255, .8) url({{ url_for('static', filename='loading.gif') }}) 50% 50% no-repeat;
+    }
+
+    body.loading .modal {
+      overflow: hidden;
+    }
+
+    body.loading .modal {
+      display: block;
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -100,7 +115,9 @@
             </table>
           </div>
         </fieldset>
-        <button type="submit" class="btn btn-primary btn-lg btn-block">计算</button>
+        <div class="form-group mb-3">
+          <button type="submit" class="btn btn-primary btn-lg btn-block">计算</button>
+        </div>
       </form>
     </div>
     <div class="col-md-4">
@@ -139,6 +156,7 @@
     </div>
   </div>
 </div>
+<div class="modal"><!-- Place at bottom of page --></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"

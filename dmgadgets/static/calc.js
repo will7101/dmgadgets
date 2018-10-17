@@ -1,14 +1,29 @@
 $(function () {
+    let $body = $("body");
+
+    $(document).on({
+        ajaxStart: function () {
+            $body.addClass("loading");
+        },
+        ajaxStop: function () {
+            $body.removeClass("loading");
+        }
+    });
+
     $('#exprForm').submit(function (event) {
             console.log(event.data);
             event.preventDefault();
             if ($('#radioExpr').is(':checked')) {
+                let args = {
+                    expr: $('#expr').val()
+                };
+                for (let i = 0; i < 5; ++i) {
+                    args['op' + i] = $('#op' + i).val();
+                }
                 $.ajax({
                     type: 'GET',
                     url: 'api/parse',
-                    data: {
-                        expr: $('#expr').val()
-                    },
+                    data: args,
                     dataType: 'json',
                     success: function (data) {
                         console.log(data);
@@ -59,10 +74,10 @@ $(function () {
 
                             // console.log(data['image']);
                             $('#graph').empty().append(
-                              $('<img>', {
-                                  src: 'data:image/png;base64,' + data['image'],
-                                  class: 'img-fluid'
-                              })
+                                $('<img>', {
+                                    src: 'data:image/png;base64,' + data['image'],
+                                    class: 'img-fluid'
+                                })
                             );
 
                         } else {
