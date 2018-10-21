@@ -5,6 +5,7 @@ from typing import List
 from graphviz import Graph
 from flask import g
 from base64 import b64encode
+from .qm import QM
 
 # BoolOperator = collections.namedtuple('BoolOperator', ['func', 'privilege'])
 
@@ -88,13 +89,18 @@ class AST:
 
         stack = []
         rpn = []
+        expect_operand = True
         while pos < len(expr):
             token = next_token()
             if token is None:
                 break
             if token == '(':
+                if not expect_operand:
+                    raise BoolExpError('syntax error')
                 stack.append(token)
             elif token == ')':
+                if expect_operand:
+                    raise BoolExpError('syntax error')
                 try:
                     while stack[-1] != '(':
                         rpn.append(stack.pop())
@@ -103,14 +109,28 @@ class AST:
                     raise BoolExpError('syntax error')
             elif token in op_list:
                 if token == OP_NOT:
+                    # token is a unary operator
+                    if not expect_operand:
+                        raise BoolExpError('syntax error')
                     while len(stack) != 0 and stack[-1] != '(' and op_privilege[stack[-1]] > op_privilege[token]:
                         rpn.append(stack.pop())
                 else:
+                    # token is a binary operator
+                    if expect_operand:
+                        raise BoolExpError('syntax error')
+                    expect_operand = True
                     while len(stack) != 0 and stack[-1] != '(' and op_privilege[stack[-1]] >= op_privilege[token]:
                         rpn.append(stack.pop())
                 stack.append(token)
             else:
+                # token is a variable
+                if not expect_operand:
+                    raise BoolExpError('syntax error')
+                expect_operand = False
                 rpn.append(token)
+
+        if expect_operand:
+            raise BoolExpError('syntax error')
 
         rpn.extend(reversed(stack))
         # print(rpn)
@@ -251,6 +271,24 @@ class AST:
             result.pop()
         result = ' '.join(result)
         return result, indices
+
+    def simplify(self, table):
+        """Return a simplified expression of the truth table given.
+        """
+        print(table)
+        qm = QM(self.var_names)
+        ones = []
+        var_num = len(self.var_names)
+        for i in range(1 << var_num):
+            if table[i]['result']:
+                ones.append(int('{:0{w}b}'.format(i, w=var_num)[::-1], 2))
+        ones.sort()
+        print(ones)
+        expr = qm.get_function(qm.solve(ones, [])[1])
+        expr = expr.replace('NOT ', g.op_table_r[OP_NOT])
+        expr = expr.replace('AND', g.op_table_r[OP_AND])
+        expr = expr.replace('OR', g.op_table_r[OP_OR])
+        return expr
 
     def dump_graph(self):
         """

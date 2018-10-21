@@ -99,6 +99,9 @@ def from_truth_table():
     dnf = (dnf[0] if dnf[0] else '空') + '<br>' + str(dnf[1])
     cnf = tree.cnf(table)
     cnf = (cnf[0] if cnf[0] else '空') + '<br>' + str(cnf[1])
+    expr = tree.simplify(table)
+    tree.parse(expr)
+    image = tree.dump_graph()
 
     return json.dumps({
         'status': 'ok',
@@ -111,5 +114,10 @@ def from_truth_table():
                 'title': '主合取范式',
                 'content': cnf
             },
-        ]
+            {
+                'title': '简化后的表达式',
+                'content': expr
+            }
+        ],
+        'image': image
     })

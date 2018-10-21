@@ -109,6 +109,13 @@ $(function () {
                                     'class': 'list-group-item'
                                 }).append($title).append($content).appendTo($result_list);
                             });
+
+                            $('#graph').empty().append(
+                                $('<img>', {
+                                    src: 'data:image/png;base64,' + data['image'],
+                                    class: 'img-fluid'
+                                })
+                            );
                         } else {
                             alert(data['msg']);
                         }
