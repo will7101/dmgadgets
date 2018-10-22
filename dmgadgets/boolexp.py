@@ -122,12 +122,14 @@ class AST:
                     while len(stack) != 0 and stack[-1] != '(' and op_privilege[stack[-1]] >= op_privilege[token]:
                         rpn.append(stack.pop())
                 stack.append(token)
-            else:
+            elif token.isalpha():
                 # token is a variable
                 if not expect_operand:
                     raise BoolExpError('syntax error')
                 expect_operand = False
                 rpn.append(token)
+            else:
+                raise BoolExpError('syntax error')
 
         if expect_operand:
             raise BoolExpError('syntax error')
@@ -275,7 +277,7 @@ class AST:
     def simplify(self, table):
         """Return a simplified expression of the truth table given.
         """
-        print(table)
+        # print(table)
         qm = QM(self.var_names)
         ones = []
         var_num = len(self.var_names)
@@ -283,7 +285,7 @@ class AST:
             if table[i]['result']:
                 ones.append(int('{:0{w}b}'.format(i, w=var_num)[::-1], 2))
         ones.sort()
-        print(ones)
+        # print(ones)
         expr = qm.get_function(qm.solve(ones, [])[1])
         expr = expr.replace('NOT ', g.op_table_r[OP_NOT])
         expr = expr.replace('AND', g.op_table_r[OP_AND])

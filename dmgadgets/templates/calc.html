@@ -70,8 +70,8 @@
   <div class="py-4 text-center">
     <h1>离散数学工具箱</h1>
     <p class="lead">
-      输入逻辑表达式，快速计算波兰表达式、逆波兰表达式、真值表、主析取范式、主合取范式。<br>
-      输入真值表，求主析取范式和主合取范式。
+      输入逻辑表达式，计算波兰表达式、逆波兰表达式、真值表、主析取范式、主合取范式、表达式树。<br>
+      输入真值表，求主析取范式和主合取范式，并猜测原表达式。
     </p>
   </div>
   <div class="row">
@@ -86,7 +86,7 @@
         </div>
         <div class="form-group mb-3">
           {#<label for="expr" class="control-label">表达式</label>#}
-          <input type="text" class="form-control text-monospace" name="expr" id="expr" placeholder="请输入要计算的表达式"
+          <input type="text" class="form-control text-monospace" name="expr" id="expr" placeholder="请输入要计算的表达式，变量用单个大/小写字母表示"
                  maxlength="500">
         </div>
         <div class="form-group mb-3">
